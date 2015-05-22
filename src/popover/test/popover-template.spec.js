@@ -18,7 +18,7 @@ describe('popover template', function() {
 
   beforeEach(inject(function($rootScope, $compile) {
     elmBody = angular.element(
-      '<div><span popover-template="{{ templateUrl }}">Selector Text</span></div>'
+      '<div><span popover-template="templateUrl">Selector Text</span></div>'
     );
 
     scope = $rootScope;
@@ -62,5 +62,68 @@ describe('popover template', function() {
 
     expect( elmBody.children().eq(1).text().trim() ).toBe( 'new text' );
   }));
+
+  it('should hide popover when template becomes empty', inject(function ($timeout) {
+    elm.trigger( 'click' );
+    expect( tooltipScope.isOpen ).toBe( true );
+
+    scope.templateUrl = '';
+    scope.$digest();
+
+    expect( tooltipScope.isOpen ).toBe( false );
+
+    $timeout.flush();
+    expect( elmBody.children().length ).toBe( 1 );
+  }));
+
+  describe('supports options', function () {
+
+    describe('placement', function () {
+
+      it('can specify an alternative, valid placement', inject(function ($compile) {
+        elmBody = angular.element(
+          '<div><span popover-template="templateUrl" popover-placement="left">Trigger</span></div>'
+        );
+        $compile(elmBody)(scope);
+        scope.$digest();
+        elm = elmBody.find('span');
+        elmScope = elm.scope();
+        tooltipScope = elmScope.$$childTail;
+
+        elm.trigger( 'click' );
+        expect( tooltipScope.isOpen ).toBe( true );
+
+        expect( elmBody.children().length ).toBe( 2 );
+        var ttipElement = elmBody.find('div.popover');
+        expect(ttipElement).toHaveClass('left');
+      }));
+
+    });
+
+    describe('class', function () {
+
+      it('can specify a custom class', inject(function ($compile) {
+        elmBody = angular.element(
+          '<div><span popover-template="templateUrl" popover-class="custom">Trigger</span></div>'
+        );
+        $compile(elmBody)(scope);
+        scope.$digest();
+        elm = elmBody.find('span');
+        elmScope = elm.scope();
+        tooltipScope = elmScope.$$childTail;
+
+        elm.trigger( 'click' );
+        expect( tooltipScope.isOpen ).toBe( true );
+
+        expect( elmBody.children().length ).toBe( 2 );
+        var ttipElement = elmBody.find('div.popover');
+        expect(ttipElement).toHaveClass('custom');
+      }));
+
+    });
+
+  });
+
+
 });
 
